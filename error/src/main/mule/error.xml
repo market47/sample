@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3d3303c0-d9c1-4765-b097-269cebb4f7e9" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="e4a3d8ec-00ff-4013-b366-26f0a99e015c" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" database="db30" />
+	</db:config>
+	<flow name="errorFlow" doc:id="a92e0560-da53-49de-8fee-1ab200dfbbfc" >
+		<http:listener doc:name="Listener" doc:id="7e0320e8-0dd3-473f-8a8f-c5b0c4c1b4c5" config-ref="HTTP_Listener_config" path="error"/>
+		<logger level="INFO" doc:name="Logger" doc:id="705403a9-46d1-41ca-9f82-d630796b0045" message="flow started"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e17e926e-1b6d-4c7a-baf4-df35120b74fe" message="one"/>
+		<try doc:name="Try" doc:id="0cecc27d-013e-437b-a37f-660795a928a5" >
+			<db:insert doc:name="Insert" doc:id="e340606c-fa96-4594-bb1a-7b6ce71b45ec" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into]]></db:sql>
+		</db:insert>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="319693a0-8f01-405f-86be-2968d3212153" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="5f49a554-b48f-4133-b286-8ed5e16a3c3c" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "please enter valid details"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-continue>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="94594503-67a6-41f3-ab30-ad826445a2ff" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="e0e04be4-a297-4f35-b16d-90c6326b2603" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+"message": "please enter valid detailssss"
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="f122c08a-f6c8-425b-ac12-a265da899a99" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e1c6f172-5fb5-4e00-9ba7-3c673b1e8c6d" message="#[payload]"/>
+	</flow>
+</mule>
