@@ -15,7 +15,8 @@
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="calc1-config" />
-        <error-handler>
+        <logger level="INFO" doc:name="Logger" doc:id="361a7f8f-d41f-4935-b986-21b3292c407d" message="flow ended"/>
+		<error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
                 <ee:transform doc:name="Transform Message">
                     <ee:message>
