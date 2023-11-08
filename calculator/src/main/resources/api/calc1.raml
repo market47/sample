@@ -1,0 +1,24 @@
+#%RAML 1.0
+title: calc1
+version: v1
+protocols:
+  - HTTPS
+
+/addition:
+  get:
+    queryParameters:
+      number1:
+        required: true
+        type: integer
+      number2:
+        required: true
+        type: integer
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "result": "addition is 10"
+              }
+      
